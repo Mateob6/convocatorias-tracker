@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.convocatorias.scanner</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>/Users/mateo.belalcazar/Desktop/Convocatorias, eventos y más/convocatorias_scan.py</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/mateo.belalcazar/Desktop/Convocatorias, eventos y más</string>
+
+    <!-- Execute on the 1st of every month at 10:00 AM -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Day</key>
+        <integer>1</integer>
+        <key>Hour</key>
+        <integer>10</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/mateo.belalcazar/Desktop/Convocatorias, eventos y más/logs/launchd_stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/mateo.belalcazar/Desktop/Convocatorias, eventos y más/logs/launchd_stderr.log</string>
+
+    <!-- Environment variables for email (override these with your actual values) -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>SMTP_USER</key>
+        <string></string>
+        <key>SMTP_PASSWORD</key>
+        <string></string>
+    </dict>
+</dict>
+</plist>
