@@ -45,6 +45,7 @@ COLUMN_WIDTHS = {
     13: 12,  # Relevancia
     14: 16,  # Estado
     15: 50,  # Notas
+    16: 50,  # Resumen_IA
 }
 
 

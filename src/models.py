@@ -36,7 +36,7 @@ class Estado(Enum):
 COLUMNAS = [
     "ID", "Fecha_deteccion", "Nombre", "Entidad", "Tipo", "Fuente",
     "URL", "Fecha_apertura", "Fecha_cierre", "Monto", "Requisitos_clave",
-    "Documentos_necesarios", "Relevancia", "Estado", "Notas",
+    "Documentos_necesarios", "Relevancia", "Estado", "Notas", "Resumen_IA",
 ]
 
 
@@ -57,6 +57,7 @@ class Oportunidad:
     relevancia: str = "Media"
     estado: str = "Nueva"
     notas: str = ""
+    resumen_ia: str = ""
 
     def to_row(self) -> list:
         """Convert to a list matching the Excel column order."""
@@ -76,6 +77,7 @@ class Oportunidad:
             self.relevancia,
             self.estado,
             self.notas,
+            self.resumen_ia,
         ]
 
     @classmethod
@@ -112,6 +114,7 @@ class Oportunidad:
             relevancia=str(row[12] or "Media"),
             estado=str(row[13] or "Nueva"),
             notas=str(row[14] or ""),
+            resumen_ia=str(row[15] or "") if len(row) > 15 else "",
         )
 
     def is_expired(self) -> bool:

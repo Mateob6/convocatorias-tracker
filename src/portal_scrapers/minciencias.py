@@ -1,6 +1,7 @@
 """Scraper para el portal de Minciencias."""
 
 import logging
+import time
 from typing import List
 
 from src.models import Oportunidad
@@ -86,6 +87,11 @@ class MincienciasScraper(BasePortalScraper):
                 monto=amount,
                 estado=estado,
             )
+
+            detail_text = self.fetch_detail_text(url)
+            self.enrich_from_detail(op, detail_text)
+            time.sleep(1)
+
             results.append(op)
 
         logger.info(f"[{self.portal_name}] Found {len(results)} items")

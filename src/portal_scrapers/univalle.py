@@ -1,6 +1,7 @@
 """Scraper para portales de la Universidad del Valle."""
 
 import logging
+import time
 from typing import List
 
 from src.models import Oportunidad
@@ -104,6 +105,11 @@ class UnivalleScraper(BasePortalScraper):
                 fecha_cierre=deadline,
                 monto=amount,
             )
+
+            detail_text = self.fetch_detail_text(url)
+            self.enrich_from_detail(op, detail_text)
+            time.sleep(1)
+
             results.append(op)
 
         logger.info(f"[{self.portal_name}] Found {len(results)} items")

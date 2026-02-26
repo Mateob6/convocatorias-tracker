@@ -1,10 +1,11 @@
 """Scraper para Fulbright Colombia."""
 
 import logging
+import time
 from typing import List
 
 from src.models import Oportunidad
-from src.pdf_parser import find_deadline, extract_amount
+from src.pdf_parser import find_deadline
 from src.portal_scrapers.base import BasePortalScraper
 
 logger = logging.getLogger(__name__)
@@ -75,6 +76,11 @@ class FulbrightScraper(BasePortalScraper):
                 url=url,
                 fecha_cierre=deadline,
             )
+
+            detail_text = self.fetch_detail_text(url)
+            self.enrich_from_detail(op, detail_text)
+            time.sleep(1)
+
             results.append(op)
 
         logger.info(f"[{self.portal_name}] Found {len(results)} items")

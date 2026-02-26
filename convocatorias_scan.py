@@ -28,6 +28,7 @@ from src.email_sender import EmailSender
 from src.excel_manager import ExcelManager
 from src.models import Oportunidad
 from src.relevance_scorer import RelevanceScorer
+from src.summarizer import generate_summary
 from src.web_scraper import WebScraperOrchestrator
 
 
@@ -183,6 +184,9 @@ def main():
     if is_new_excel:
         seed = load_seed_data(CONFIG["rutas"]["seed_data"])
         if seed:
+            for op in seed:
+                if not op.resumen_ia:
+                    op.resumen_ia = generate_summary(op)
             added = excel.add_oportunidades(seed)
             logger.info(f"Seeded {added} initial opportunities")
 
@@ -197,6 +201,11 @@ def main():
             # Score relevance
             scorer = RelevanceScorer(CONFIG["perfil"])
             scored = scorer.score_all(web_ops)
+
+            # Generate summaries
+            for op in scored:
+                if not op.resumen_ia:
+                    op.resumen_ia = generate_summary(op)
 
             # Add to Excel (deduplication handled internally)
             added = excel.add_oportunidades(scored)

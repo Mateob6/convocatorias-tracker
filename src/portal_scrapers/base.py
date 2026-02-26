@@ -10,7 +10,10 @@ import requests
 from bs4 import BeautifulSoup
 
 from src.models import Oportunidad
-from src.pdf_parser import extract_dates, find_deadline, extract_amount
+from src.pdf_parser import (
+    extract_amount, extract_dates, extract_documents,
+    extract_requirements, find_deadline, find_opening_date,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +68,40 @@ class BasePortalScraper:
         if relative_url.startswith(("http://", "https://")):
             return relative_url
         return urljoin(self.base_url, relative_url)
+
+    def fetch_detail_text(self, url: str) -> str:
+        """Fetch a detail page and return its full text content."""
+        if not url:
+            return ""
+        try:
+            response = requests.get(
+                url, headers=self.HEADERS, timeout=15,
+                allow_redirects=True,
+            )
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, "lxml")
+            # Remove nav, header, footer, script, style to get cleaner text
+            for tag in soup.select("nav, header, footer, script, style, noscript"):
+                tag.decompose()
+            return soup.get_text(separator=" ", strip=True)
+        except requests.exceptions.RequestException as e:
+            logger.debug(f"[{self.portal_name}] Detail fetch failed for {url}: {e}")
+            return ""
+
+    def enrich_from_detail(self, op, detail_text: str) -> None:
+        """Fill empty fields using data extracted from a detail page."""
+        if not detail_text:
+            return
+        if not op.fecha_apertura:
+            op.fecha_apertura = find_opening_date(detail_text)
+        if not op.fecha_cierre:
+            op.fecha_cierre = find_deadline(detail_text)
+        if not op.monto:
+            op.monto = extract_amount(detail_text)
+        if not op.requisitos_clave:
+            op.requisitos_clave = extract_requirements(detail_text)
+        if not op.documentos_necesarios:
+            op.documentos_necesarios = extract_documents(detail_text)
 
 
 class GenericScraper(BasePortalScraper):
@@ -126,6 +163,12 @@ class GenericScraper(BasePortalScraper):
                 fecha_cierre=deadline,
                 monto=amount,
             )
+
+            # Fetch detail page to fill requisitos, documentos, etc.
+            detail_text = self.fetch_detail_text(full_url)
+            self.enrich_from_detail(op, detail_text)
+            time.sleep(1)
+
             results.append(op)
 
         logger.info(f"[{self.portal_name}] GenericScraper found {len(results)} items")
